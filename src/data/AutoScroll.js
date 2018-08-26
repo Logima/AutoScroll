@@ -54,10 +54,10 @@ chrome.storage.local.get(defaults, function (options) {
   }
 
 
-  function image(o) {
-    if (o.width && o.height) {
+  function image() {
+    if (state.width && state.height) {
       return chrome.runtime.getURL("data/images/origin/both.svg")
-    } else if (o.width) {
+    } else if (state.width) {
       return chrome.runtime.getURL("data/images/origin/horizontal.svg")
     } else {
       return chrome.runtime.getURL("data/images/origin/vertical.svg")
@@ -96,7 +96,10 @@ chrome.storage.local.get(defaults, function (options) {
     dirY: 0,
 
     click: false,
-    scrolling: false
+    scrolling: false,
+
+    width: false,
+    height: false
   }
 
   var htmlNamespace = "http://www.w3.org/1999/xhtml"
@@ -197,8 +200,9 @@ chrome.storage.local.get(defaults, function (options) {
     // TODO is this a good idea ?
     stopEvent(event, true)
 
-    var x = event.clientX - state.oldX,
-        y = event.clientY - state.oldY
+    // Calculate only scrollable axes
+    var x = state.width ? event.clientX - state.oldX : 0,
+        y = state.height ? event.clientY - state.oldY : 0
 
     if (math.hypot(x, y) > options["moveThreshold"]) {
       //state.stickyScroll = false;
@@ -278,6 +282,8 @@ chrome.storage.local.get(defaults, function (options) {
 
   function show(o, x, y) {
     state.scrolling = true
+    state.width = o.width
+    state.height = o.height
     state.oldX = x
     state.oldY = y
 
@@ -287,7 +293,7 @@ chrome.storage.local.get(defaults, function (options) {
     addEventListener("mousemove", mousemove, true)
     addEventListener("mouseup", mouseup, true)
 
-    inner.style.setProperty("background-image", "url(\"" + image(o) + "\")")
+    inner.style.setProperty("background-image", "url(\"" + image() + "\")")
     inner.style.setProperty("background-position", (x - 13) + "px " +
                                                    (y - 13) + "px")
 
