@@ -160,8 +160,15 @@ chrome.storage.local.get(defaults, function (options) {
     return options["stickyScroll"] && /*state.stickyScroll && */math.hypot(x, y) < options["dragThreshold"]
   }
 
-  function scale(value) {
-    return value / options["moveSpeed"]
+  function accelerate(val) {
+    var threshold = options["moveThreshold"]
+    if (Math.abs(val) < threshold) {
+      return 0
+    }
+    var neg = val < 0 ? -1 : 1
+    val = (val - threshold * neg) / options["moveSpeed"]
+
+    return val * Math.pow(val * neg, options["moveSpeedAcceleration"])
   }
 
 
@@ -213,14 +220,14 @@ chrome.storage.local.get(defaults, function (options) {
       // 5  = 10
       // 1  = 50
       if (options["sameSpeed"]) {
-        x = math.max(x, 1) * 50
+        x = math.max(x, 1) * 50 / options["moveSpeed"]
         //(Options.get("moveSpeed") * 0.04);
-        y = math.max(y, 1) * 50
+        y = math.max(y, 1) * 50 / options["moveSpeed"]
         //(Options.get("moveSpeed") * 0.04);
+      } else {
+        x = accelerate(x)
+        y = accelerate(y)
       }
-
-      x = scale(x)
-      y = scale(y)
 
       if (options["shouldCap"]) {
         x = math.max(x, options["capSpeed"])

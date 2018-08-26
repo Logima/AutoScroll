@@ -130,6 +130,19 @@ require(["lib/chrome-extension/options", "lib/util/cell", "lib/util/ui"], functi
           e.addText(" (lower is faster)")
         }).move(e)
 
+        ui.box(function (e) {
+          e.addText("Move speed acceleration: ")
+
+          options.textbox(e, opts["moveSpeedAcceleration"], {
+            default: defaults["moveSpeedAcceleration"],
+            type: "number",
+            width: "2.5em",
+            set: min0
+          })
+
+          e.addText(" (higher is faster)")
+        }).move(e)
+
         options.separator(e)
 
         options.checkbox(e, opts["sameSpeed"], {
